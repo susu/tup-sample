@@ -1,0 +1,22 @@
+
+CXXFLAGS= -Wall -Werror
+INCLUDE= ../include
+SRC= ../src
+
+HELLO_LIB= $(SRC)/hello.cpp
+
+!cxx = |> g++ -I$(INCLUDE) -c %f -o %o |>
+
+: foreach $(HELLO_LIB) |> !cxx |> %B.o
+
+: $(SRC)/main.cpp |> !cxx |> %B.o
+
+# production lib
+# TODO
+
+# production binary
+: *.o |> g++ %f -o %o |> hello_bin
+
+# generating test
+
+
