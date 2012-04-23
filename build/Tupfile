@@ -2,21 +2,33 @@
 CXXFLAGS= -Wall -Werror
 INCLUDE= ../include
 SRC= ../src
+TST= ../test
+TEST_RUNNER= test_runner
 
-HELLO_LIB= $(SRC)/hello.cpp
+HELLO_LIB= hello
 
-!cxx = |> g++ -I$(INCLUDE) -c %f -o %o |>
+LIBS= libhello.so
 
-: foreach $(HELLO_LIB) |> !cxx |> %B.o
+!cxx = |> g++ -fPIC -I$(INCLUDE) -c %f -o %o |>
+!cxxtestgen = |> cxxtestgen --error-printer -o %o %f |> 
+
+!o2bin = |> g++ %f -L. -lhello -Wl,-R./ -o %o |>
+!o2shared = |> g++ -shared %f -o %o |>
+
+: foreach $(SRC)/$(HELLO_LIB).cpp |> !cxx |> %B.o
 
 : $(SRC)/main.cpp |> !cxx |> %B.o
 
 # production lib
-# TODO
+: $(HELLO_LIB).o |> !o2shared |> libhello.so
 
 # production binary
-: *.o |> g++ %f -o %o |> hello_bin
+: main.o $(LIBS) |> !o2bin |> hello_bin
 
-# generating test
+# generating test into one cpp
+: $(TST)/*.hpp |> !cxxtestgen |> $(TEST_RUNNER).cpp
+: $(TEST_RUNNER).cpp  |> !cxx |> $(TEST_RUNNER).o
+
+ : $(TEST_RUNNER).o $(LIBS) |> !o2bin |> test_all_stuff
 
 

@@ -15,3 +15,5 @@
 .*.swo
 .tup/
 
+build/*
+
